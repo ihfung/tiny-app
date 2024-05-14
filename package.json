@@ -4,15 +4,15 @@
   "description": "",
   "main": "express_server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./express_server.js"
+    "start": "./node_modules/.bin/nodemon -L express_server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ihfung/tiny-app.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Ivan Leung, ihfungleung@gmail.com",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ihfung/tiny-app/issues"
@@ -20,7 +20,9 @@
   "homepage": "https://github.com/ihfung/tiny-app#readme",
   "dependencies": {
     "ejs": "^3.1.10",
-    "express": "^4.19.2",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.0"
   }
 }
