@@ -68,7 +68,7 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id]; //deletes the URL from the database
   res.redirect("/urls"); //redirects to the URLs page
-}); 
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
