@@ -66,13 +66,15 @@ app.get("/u/:id", (req, res) => {
 
 //params is a property of the request object
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id]; //deletes the URL from the database
+  const tempId = req.params.id;
+  delete urlDatabase[tempId]; //deletes the URL from the database
   res.redirect("/urls"); //redirects to the URLs page
 });
 
 //Add a POST route that updates a URL resource; POST /urls/:id and have it update the value of your stored long URL based on the new value in req.body. Finally, redirect the client back to /urls.
 app.post("/urls/:id/edit", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  const tempId = req.params.id;
+  urlDatabase[tempId] = req.body.longURL;
   res.redirect("/urls");
 });
 
