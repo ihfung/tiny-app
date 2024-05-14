@@ -79,9 +79,9 @@ app.post("/urls/:id/edit", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
-  res.redirect("/urls");
+  const username = req.body.username; //gets the username from the form the user inputs the username
+  res.cookie("username", username); //sets the cookie with the username
+  res.redirect("/urls"); //redirects to the URLs page
 });
 
 app.listen(PORT, () => {
