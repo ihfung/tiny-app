@@ -11,10 +11,10 @@ const urlDatabase = {
 
 let generateRandomString = function() {
   //generates a random 6 character string
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += Math.random().toString(36).substring(2, 3);
-  }
+  let result = "";
+  let characters = Math.random() * 10;
+  result = characters.toString();
+  result = result.slice(2, 8);
   return result;
 };
 
