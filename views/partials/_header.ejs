@@ -19,6 +19,12 @@
        
       </div>
       <div class="navbar-nav ml-auto">
+          <% if(username) { %>
+          <label for="username" class="nav-item nav-link">Logged in As: <%= username %></label>
+           <button type="submit" class="btn btn-outline-dark">Logout</button>
+    
+          <% } else { %>
+       
         <form method="POST" action="/login" class="form-inline">
           <div class="form-group mb-1">
             <input
@@ -31,6 +37,7 @@
             <button type="submit" class="btn btn-outline-dark">Login</button>
             </div>
         </form>
+        <% } %>
       </div>
     </div>
    
