@@ -10,7 +10,7 @@ const urlDatabase = {
 };
 
 let generateRandomString = function() {
-  return Math.random().toString(36).substring(2, 8);
+  return Math.random().toString(36).substring(2, 8); //generates a random 6 character string
 };
 
 app.use(express.urlencoded({ extended: true }));
@@ -47,9 +47,9 @@ app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
   */
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
+  const shortURL = generateRandomString(); //generates a random 6 character string
+  urlDatabase[shortURL] = req.body.longURL; //adds the new URL to the database
+  res.redirect(`/urls/${shortURL}`); //redirects to the new URL
 
 });
 
