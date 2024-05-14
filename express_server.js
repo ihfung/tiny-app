@@ -71,7 +71,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 //Add a POST route that updates a URL resource; POST /urls/:id and have it update the value of your stored long URL based on the new value in req.body. Finally, redirect the client back to /urls.
-app.post("/urls/:id", (req, res) => {
+app.post("/urls/:id/edit", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls");
 });
