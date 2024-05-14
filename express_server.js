@@ -10,7 +10,12 @@ const urlDatabase = {
 };
 
 let generateRandomString = function() {
-  return Math.random().toString(36).substring(2, 8); //generates a random 6 character string
+  //generates a random 6 character string
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += Math.random().toString(36).substring(2, 3);
+  }
+  return result;
 };
 
 app.use(express.urlencoded({ extended: true }));
