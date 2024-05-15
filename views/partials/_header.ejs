@@ -19,8 +19,8 @@
        
       </div>
       <div class="navbar-nav ml-auto">
-        <% if(username) { %>
-          <label for="username" class="nav-item nav-link">Logged in As: <%= username %></label>
+        <% if(user) { %>
+          <label for="username" class="nav-item nav-link">Logged in As: <%= user.email %></label>
           <form method="POST" action="/logout" class="form-inline">
             <input type="hidden" name="_method" value="DELETE" />
             <button type="submit" class="btn btn-outline-dark">Logout</button>

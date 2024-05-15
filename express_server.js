@@ -12,6 +12,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 let generateRandomString = function() {
   //generates a random 6 character string
   let result = "";
@@ -37,16 +50,20 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { username: req.cookies["username"], urls: urlDatabase};
+  const user = users[req.cookies.user_id];
+  const templateVars = { user, urls: urlDatabase};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const user = users[req.cookies.user_id];
+  const templateVars = { user, urls: urlDatabase};
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const user = users[req.cookies.user_id];
+  const templateVars = { user, id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
@@ -81,6 +98,7 @@ app.post("/urls/:id/edit", (req, res) => {
   res.redirect("/urls");
 });
 
+//body is a property of the request object
 app.post("/login", (req, res) => {
   const username = req.body.username; //gets the username from the form the user inputs the username
   res.cookie("username", username); //sets the cookie with the username
@@ -93,7 +111,20 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("register");
+  const user = users[req.cookies.user_id];
+  const templateVars = { user };
+  res.render("register", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  let userId = generateRandomString(); //To generate a random user ID, use the same function you use to generate random IDs for URLs.
+  let email = req.body.email;
+  let password = req.body.password;
+  let user = { id: userId, email, password };
+  users[userId] = user; //Add the new user object to the users object.
+  res.cookie("user_id", userId); //set a user_id cookie containing the user's newly generated ID.
+  console.log(users);
+  res.redirect("/urls"); //redirects to the URLs page
 });
 
 app.listen(PORT, () => {
