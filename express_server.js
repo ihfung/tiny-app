@@ -109,7 +109,7 @@ app.post("/login", (req, res) => {
       res.redirect("/urls"); //redirects to the URLs page
     }
   }
-  res.status(403).send("Invalid email or password");
+  res.status(403).send("Incorrect email or password");
 });
 
 app.post("/logout", (req, res) => {
