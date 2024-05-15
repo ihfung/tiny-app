@@ -100,14 +100,21 @@ app.post("/urls/:id/edit", (req, res) => {
 
 //body is a property of the request object
 app.post("/login", (req, res) => {
-  const username = req.body.username; //gets the username from the form the user inputs the username
-  res.cookie("username", username); //sets the cookie with the username
-  res.redirect("/urls"); //redirects to the URLs page
+  let email = req.body.email;
+  let password = req.body.password;
+
+  for (let user in users) {
+    if (users[user].email === email && users[user].password === password) {
+      res.cookie("user_id", users[user].id); //set the user_id cookie with the matching user's random ID
+      res.redirect("/urls"); //redirects to the URLs page
+    }
+  }
+  res.status(403).send("Invalid email or password");
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id"); //clears the cookie
-  res.redirect("/urls"); //redirects to the URLs page
+  res.redirect("/login"); //redirects to the login page
 });
 
 app.get("/register", (req, res) => {
