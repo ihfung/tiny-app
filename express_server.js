@@ -56,6 +56,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!users[req.cookies.user_id]) {
+    res.redirect("/login");
+  }
   const user = users[req.cookies.user_id];
   const templateVars = { user, urls: urlDatabase};
   res.render("urls_new", templateVars);
@@ -72,14 +75,21 @@ app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
   */
-  const shortURL = generateRandomString(); //generates a random 6 character string
-  urlDatabase[shortURL] = req.body.longURL; //adds the new URL to the database
-  res.redirect(`/urls/${shortURL}`); //redirects to the new URL
-
+  if (!users[req.cookies.user_id]) {
+    res.status(403).send("Please login or register to shorten an URL");
+  } else {
+    const shortURL = generateRandomString(); //generates a random 6 character string
+    urlDatabase[shortURL] = req.body.longURL; //adds the new URL to the database
+    res.redirect(`/urls/${shortURL}`); //redirects to the new URL
+  }
 });
 
 app.get("/u/:id", (req, res) => {
   // const longURL = ...
+  const shortURl = req.params.shortURL;
+  if (!urlDatabase[shortURl]) {
+    res.status(404).send("URL not found");
+  }
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
@@ -118,7 +128,7 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  if (req.cookies.user_id) {
+  if (users[req.cookies.user_id]) {
     res.redirect("/urls");
   }
   const user = users[req.cookies.user_id];
@@ -146,7 +156,7 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  if (req.cookies.user_id) {
+  if (users[req.cookies.user_id]) {
     res.redirect("/urls");
   }
   const user = users[req.cookies.user_id];
