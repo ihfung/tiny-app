@@ -106,7 +106,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username"); //clears the cookie
+  res.clearCookie("user_id"); //clears the cookie
   res.redirect("/urls"); //redirects to the URLs page
 });
 
@@ -121,6 +121,14 @@ app.post("/register", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   let user = { id: userId, email, password };
+  if (email.length === 0 || password.length === 0) {
+    res.status(400).send("Email and password cannot be empty");
+  }
+  for (let user in users) {
+    if (users[user].email === email) {
+      res.status(400).send("Email already exists");
+    }
+  }
   users[userId] = user; //Add the new user object to the users object.
   res.cookie("user_id", userId); //set a user_id cookie containing the user's newly generated ID.
   console.log(users);
