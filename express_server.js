@@ -8,8 +8,14 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {
@@ -34,6 +40,16 @@ let generateRandomString = function() {
   return result;
 };
 
+let urlsForUser = function(id) {
+  let result = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      result[url] = urlDatabase[url];
+    }
+  }
+  return result;
+};
+
 app.use(express.urlencoded({ extended: true }));
 
 //req = request, res = response
@@ -50,23 +66,35 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  if (!users[req.cookies.user_id]) {
+    res.status(403).send("Please login or register to view your URLs"); 
+  }
   const user = users[req.cookies.user_id];
   const templateVars = { user, urls: urlDatabase};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
+  const database = urlDatabase[req.params.id];
   if (!users[req.cookies.user_id]) {
     res.redirect("/login");
   }
   const user = users[req.cookies.user_id];
-  const templateVars = { user, urls: urlDatabase};
+  const templateVars = { user, database};
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
+  const database = urlDatabase[req.params.id];
   const user = users[req.cookies.user_id];
-  const templateVars = { user, id: req.params.id, longURL: urlDatabase[req.params.id] };
+  if (!users[req.cookies.user_id]) {
+    res.status(403).send("Please login or register to shorten an URL");
+  }
+  //Ensure the GET /urls/:id page returns a relevant error message to the user if they do not own the URL.
+  if (database.userID !== user.id) {
+    res.status(403).send("You do not own this URL");
+  }
+  const templateVars = { user, id: req.params.id,  database};
   res.render("urls_show", templateVars);
 });
 
@@ -86,6 +114,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   // const longURL = ...
+  
   const shortURl = req.params.shortURL;
   if (!urlDatabase[shortURl]) {
     res.status(404).send("URL not found");
