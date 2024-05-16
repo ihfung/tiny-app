@@ -158,14 +158,22 @@ app.post("/login", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   
+  let isUserFound = false;
   for (let user in users) {
-    let compare = bcrypt.compareSync(password, users[user].hashedPassword);
+    let hashed = users[user].hashedPassword;
+    console.log("Comparing", password, "with hash", users[user].hashedPassword);
+    let compare = bcrypt.compareSync(password, hashed);
     if (users[user].email === email && compare === true) {
-      res.cookie("user_id", users[user].id); //set the user_id cookie with the matching user's random ID
-      res.redirect("/urls"); //redirects to the URLs page
+      isUserFound = true;
+      res.cookie("user_id", users[user].id);
+      res.redirect("/urls");
+      break;
     }
   }
-  res.status(403).send("Incorrect email or password");
+
+  if (!isUserFound) {
+    res.status(403).send("Incorrect email or password");
+  }
 });
 
 app.post("/logout", (req, res) => {
