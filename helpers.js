@@ -9,4 +9,4 @@ const getUserByEmail = function(email, database) {
   return result;
 };
 
-module.exports = getUserByEmail;
+module.exports = { getUserByEmail };
