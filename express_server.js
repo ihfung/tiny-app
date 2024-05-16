@@ -11,9 +11,6 @@ app.use(cookieSession({
 
 }));
 
-//let cookieParser = require('cookie-parser');
-//const { get } = require("request");
-//app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
@@ -61,18 +58,7 @@ let urlsForUser = function(id) {
   return result;
 };
 
-/*
-const getUserByEmail = function(email, database) {
-  // lookup magic...
-  let result = false;
-  for (let userId in database) {
-    if (database[userId].email === email) {
-      result = true;
-    }
-  }
-  return result;
-};
-*/
+
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -123,10 +109,7 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  /*
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
-  */
+  
   if (!users[req.session.user_id]) {
     res.status(403).send("Please login or register to shorten an URL");
   } else {
@@ -162,7 +145,7 @@ app.post("/urls/:id/edit", (req, res) => {
   if (urlsForUser(req.session.user_id)) {
     const tempId = req.params.id;
     const longURL = req.body.longURL;
-    //urlDatabase[tempId] = req.body.longURL;
+    
     if (urlDatabase[tempId]) {
       urlDatabase[tempId].longURL = longURL;
       res.redirect("/urls");
@@ -188,7 +171,7 @@ app.post("/login", (req, res) => {
     let compare = bcrypt.compareSync(password, hashed);
     if (users[user].email === email && compare) {
       isUserFound = true;
-      //res.cookie("user_id", users[user].id);
+      
       req.session.user_id = users[user].id;
       res.redirect("/urls");
       break;
@@ -201,7 +184,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  //res.clearCookie("user_id"); //clears the cookie
+  
   req.session = null;
   res.redirect("/login"); //redirects to the login page
 });
@@ -230,7 +213,6 @@ app.post("/register", (req, res) => {
     
   }
   users[userId] = user; //Add the new user object to the users object.
-  //res.cookie("user_id", userId); //set a user_id cookie containing the user's newly generated ID.
   req.session.user_id = userId;
   console.log(users);
   res.redirect("/urls"); //redirects to the URLs page
