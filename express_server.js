@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const getUserByEmail = require("./helpers.js");
+const { getUserByEmail } = require('./helpers');
 const bcrypt = require("bcryptjs");
 
 let cookieSession = require('cookie-session');
@@ -61,6 +61,18 @@ let urlsForUser = function(id) {
   return result;
 };
 
+/*
+const getUserByEmail = function(email, database) {
+  // lookup magic...
+  let result = false;
+  for (let userId in database) {
+    if (database[userId].email === email) {
+      result = true;
+    }
+  }
+  return result;
+};
+*/
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -103,7 +115,7 @@ app.get("/urls/:id", (req, res) => {
     res.status(403).send("Please login or register to shorten an URL");
   }
   //Ensure the GET /urls/:id page returns a relevant error message to the user if they do not own the URL.
-  if (database.userID !== user.id) {
+  if (database.id !== user.id) {
     res.status(403).send("You do not own this URL");
   }
   const templateVars = { user, id: req.params.id,  database};
@@ -167,14 +179,14 @@ app.post("/login", (req, res) => {
   let password = req.body.password;
   
   let isUserFound = false;
-  if (getUserByEmail(email, users) === false) {
+  if (!email || !password || !getUserByEmail(email, users)) {
     res.status(403).send("Incorrect email or password");
   }
   for (let user in users) {
     let hashed = users[user]["password"];
     
     let compare = bcrypt.compareSync(password, hashed);
-    if (getUserByEmail(email, users) && compare) {
+    if (users[user].email === email && compare) {
       isUserFound = true;
       //res.cookie("user_id", users[user].id);
       req.session.user_id = users[user].id;
@@ -209,13 +221,13 @@ app.post("/register", (req, res) => {
   let password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
   const user = { id: userId, email, password: hashedPassword };
-  if (!email || !password || getUserByEmail(email, users) === true) {
+  if (!email || !password) {
     res.status(400).send("Email and password cannot be empty");
   }
-  for (let user in users) {
-    if (users[user].email === email) {
-      res.status(400).send("Email already exists");
-    }
+  
+  if (getUserByEmail(email, users) === true) {
+    res.status(400).send("Email already exists");
+    
   }
   users[userId] = user; //Add the new user object to the users object.
   //res.cookie("user_id", userId); //set a user_id cookie containing the user's newly generated ID.
