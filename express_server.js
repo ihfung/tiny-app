@@ -219,7 +219,7 @@ app.post("/register", (req, res) => {
   let password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
   const user = { id: userId, email, password: hashedPassword };
-  if (email.length === 0 || password.length === 0 || getUserByEmail(email, users) === true) {
+  if (!email || !password || getUserByEmail(email, users) === true) {
     res.status(400).send("Email and password cannot be empty");
   }
   for (let user in users) {
