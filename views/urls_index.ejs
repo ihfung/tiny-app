@@ -31,10 +31,12 @@
           </tr>
         </thead>
         <tbody>
+         
           <% for (let id in database) { %>
             <tr>
               <td><%= id %></td>
               <td><%= database[id].longURL %></td>
+              
               <td>
                 <form method="GET" action="/urls/<%= id %>">
                   <button type="submit" class="btn btn-outline-primary">Edit</button>

@@ -4,6 +4,12 @@ const PORT = 8080; // default port 8080
 const { getUserByEmail } = require('./helpers');
 const bcrypt = require("bcryptjs");
 
+
+app.use(express.urlencoded({extended:false}));
+// add this line
+app.use(express.json());
+
+
 let cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
@@ -76,12 +82,24 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  if (Object.keys(urlsForUser(req.session.user_id)).length === 0) {
-    const database = urlDatabase[req.params.id];
-    const user = users[req.session.user_id];
-    const templateVars = { user, database};
-    res.render("urls_index", templateVars);
+  const id = req.session.user_id;
+  
+  if (!users[req.session.user_id]) {
+    res.redirect("/login");
   }
+  
+  
+  const user = users[id];
+  let result = {};
+  //filter the database and put the result
+  for (let urlId in urlDatabase) {
+    if (urlDatabase[urlId].userID === id) {
+      result[urlId] = urlDatabase[urlId];
+    }
+  }
+  
+  res.render("urls_index", {user, database: result});
+  
 });
 
 app.get("/urls/new", (req, res) => {
@@ -101,7 +119,8 @@ app.get("/urls/:id", (req, res) => {
     res.status(403).send("Please login or register to shorten an URL");
   }
   //Ensure the GET /urls/:id page returns a relevant error message to the user if they do not own the URL.
-  if (database.id !== user.id) {
+
+  if (database.userID !== user.id) {
     res.status(403).send("You do not own this URL");
   }
   const templateVars = { user, id: req.params.id,  database};
@@ -114,8 +133,12 @@ app.post("/urls", (req, res) => {
     res.status(403).send("Please login or register to shorten an URL");
   } else {
     const shortURL = generateRandomString(); //generates a random 6 character string
-    urlDatabase[shortURL] = req.body.longURL; //adds the new URL to the database
-    urlDatabase[shortURL].userID = req.session.user_id; //adds the user ID to the URL
+    //updating the database object with the new URL
+    urlDatabase[shortURL] = {
+      longURL: req.body.longURL,
+      userID: req.session.user_id,
+    };
+    
     res.redirect(`/urls/${shortURL}`); //redirects to the new URL
   }
 });
@@ -125,7 +148,7 @@ app.get("/u/:id", (req, res) => {
   
   const userId = req.params.id;
   if (!urlDatabase[userId]) {
-    res.status(404).send("URL not found");
+    res.status(403).send("URL not found");
   }
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
@@ -205,16 +228,16 @@ app.post("/register", (req, res) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
   const user = { id: userId, email, password: hashedPassword };
   if (!email || !password) {
-    res.status(400).send("Email and password cannot be empty");
+    res.status(403).send("Email and password cannot be empty");
   }
   
   if (getUserByEmail(email, users)) {
-    res.status(400).send("Email already exists");
+    res.status(403).send("Email already exists");
     
   }
   users[userId] = user; //Add the new user object to the users object.
   req.session.user_id = userId;
-  console.log(users);
+  
   res.redirect("/urls"); //redirects to the URLs page
 });
 
