@@ -66,12 +66,12 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  if (!users[req.cookies.user_id]) {
-    res.status(403).send("Please login or register to view your URLs"); 
+  if ((urlsForUser(req.cookies.user_id))) {
+    const database = urlDatabase[req.params.id];
+    const user = users[req.cookies.user_id];
+    const templateVars = { user, database};
+    res.render("urls_index", templateVars);
   }
-  const user = users[req.cookies.user_id];
-  const templateVars = { user, urls: urlDatabase};
-  res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -108,6 +108,7 @@ app.post("/urls", (req, res) => {
   } else {
     const shortURL = generateRandomString(); //generates a random 6 character string
     urlDatabase[shortURL] = req.body.longURL; //adds the new URL to the database
+    urlDatabase[shortURL].userID = req.cookies.user_id; //adds the user ID to the URL
     res.redirect(`/urls/${shortURL}`); //redirects to the new URL
   }
 });
@@ -115,8 +116,8 @@ app.post("/urls", (req, res) => {
 app.get("/u/:id", (req, res) => {
   // const longURL = ...
   
-  const shortURl = req.params.shortURL;
-  if (!urlDatabase[shortURl]) {
+  const userId = req.params.id;
+  if (!urlDatabase[userId]) {
     res.status(404).send("URL not found");
   }
   const longURL = urlDatabase[req.params.id];
@@ -125,16 +126,27 @@ app.get("/u/:id", (req, res) => {
 
 //params is a property of the request object
 app.post("/urls/:id/delete", (req, res) => {
-  const tempId = req.params.id;
-  delete urlDatabase[tempId]; //deletes the URL from the database
-  res.redirect("/urls"); //redirects to the URLs page
+  if (urlsForUser(req.cookies.user_id)) {
+    const tempId = req.params.id;
+    delete urlDatabase[tempId]; //deletes the URL from the database
+    res.redirect("/urls"); //redirects to the URLs page
+  }
 });
 
 //Add a POST route that updates a URL resource; POST /urls/:id and have it update the value of your stored long URL based on the new value in req.body. Finally, redirect the client back to /urls.
 app.post("/urls/:id/edit", (req, res) => {
-  const tempId = req.params.id;
-  urlDatabase[tempId] = req.body.longURL;
-  res.redirect("/urls");
+  if (urlsForUser(req.cookies.user_id)) {
+    const tempId = req.params.id;
+    const longURL = req.body.longURL;
+    //urlDatabase[tempId] = req.body.longURL;
+    if (urlDatabase[tempId]) {
+      urlDatabase[tempId].longURL = longURL;
+      res.redirect("/urls");
+    }
+    res.status(403).send("URL not found");
+  }
+  res.status(403).send("You do not own this URL");
+  
 });
 
 //body is a property of the request object
