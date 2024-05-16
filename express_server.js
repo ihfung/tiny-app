@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+const bcrypt = require("bcryptjs");
+
+
 let cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
@@ -29,7 +32,7 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk",
   },
-  
+
 };
 
 let generateRandomString = function() {
@@ -154,9 +157,10 @@ app.post("/urls/:id/edit", (req, res) => {
 app.post("/login", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
-
+  
   for (let user in users) {
-    if (users[user].email === email && users[user].password === password) {
+    let compare = bcrypt.compareSync(password, users[user].hashedPassword);
+    if (users[user].email === email && compare === true) {
       res.cookie("user_id", users[user].id); //set the user_id cookie with the matching user's random ID
       res.redirect("/urls"); //redirects to the URLs page
     }
@@ -182,7 +186,8 @@ app.post("/register", (req, res) => {
   let userId = generateRandomString(); //To generate a random user ID, use the same function you use to generate random IDs for URLs.
   let email = req.body.email;
   let password = req.body.password;
-  let user = { id: userId, email, password };
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  let user = { id: userId, email, hashedPassword };
   if (email.length === 0 || password.length === 0) {
     res.status(400).send("Email and password cannot be empty");
   }
