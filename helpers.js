@@ -1,9 +1,9 @@
 let getUserByEmail = function(email, database) {
   // lookup magic...
-  let result = false;
+  let result = undefined;
   for (let userId in database) {
     if (database[userId].email === email) {
-      result = true;
+      result = database[userId];
     }
   }
   return result;

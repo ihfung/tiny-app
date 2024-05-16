@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs");
 let cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
-  keys: ["1"],
+  keys: ['asjkldfhjkasdhfjkahs'],
 
 }));
 
@@ -225,7 +225,7 @@ app.post("/register", (req, res) => {
     res.status(400).send("Email and password cannot be empty");
   }
   
-  if (getUserByEmail(email, users) === true) {
+  if (getUserByEmail(email, users)) {
     res.status(400).send("Email already exists");
     
   }
