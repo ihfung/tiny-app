@@ -22,4 +22,11 @@ describe('getUserByEmail', function() {
     // Write your assert statement here
     assert.equal(user, expectedOutput);
   });
+
+  it('should test that a non-existent email returns undefined', function() {
+    const user = getUserByEmail("sakura@example.com", testUsers);
+    const expectedOutput = false;
+    assert.equal(user, expectedOutput);
+
+  });
 });
