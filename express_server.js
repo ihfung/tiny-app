@@ -75,7 +75,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const database = urlDatabase[req.params.id];
+  const database = urlDatabase[req.params.id]; //gets the URL from the database
   if (!users[req.cookies.user_id]) {
     res.redirect("/login");
   }
