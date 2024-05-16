@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-
+const getUserByEmail = require("./helpers");
 const bcrypt = require("bcryptjs");
 
 let cookieSession = require('cookie-session');
@@ -11,8 +11,9 @@ app.use(cookieSession({
 
 }));
 
-let cookieParser = require('cookie-parser');
-app.use(cookieParser());
+//let cookieParser = require('cookie-parser');
+//const { get } = require("request");
+//app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
@@ -59,6 +60,8 @@ let urlsForUser = function(id) {
   }
   return result;
 };
+
+
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -165,13 +168,17 @@ app.post("/login", (req, res) => {
   let password = req.body.password;
   
   let isUserFound = false;
+  if (getUserByEmail(email, users) === false) {
+    res.status(403).send("Incorrect email or password");
+  }
   for (let user in users) {
     let hashed = users[user]["password"];
     
     let compare = bcrypt.compareSync(password, hashed);
-    if (users[user].email === email && compare === true) {
+    if (getUserByEmail(email, users) && compare) {
       isUserFound = true;
-      res.session("user_id", users[user].id);
+      //res.cookie("user_id", users[user].id);
+      req.session.user_id = users[user].id;
       res.redirect("/urls");
       break;
     }
@@ -203,7 +210,7 @@ app.post("/register", (req, res) => {
   let password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
   const user = { id: userId, email, password: hashedPassword };
-  if (email.length === 0 || password.length === 0) {
+  if (email.length === 0 || password.length === 0 || getUserByEmail(email, users) === true) {
     res.status(400).send("Email and password cannot be empty");
   }
   for (let user in users) {
