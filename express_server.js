@@ -70,7 +70,11 @@ app.use(express.urlencoded({ extended: true }));
 
 //req = request, res = response
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (users[req.session.user_id] && req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    res.status(302).redirect("/login");
+  }
 });
 
 app.get("/urls.json", (req, res) => {
@@ -85,6 +89,7 @@ app.get("/urls", (req, res) => {
   const id = req.session.user_id;
   
   if (!users[req.session.user_id]) {
+
     res.redirect("/login");
   }
   
@@ -120,7 +125,7 @@ app.get("/urls/:id", (req, res) => {
   }
   //Ensure the GET /urls/:id page returns a relevant error message to the user if they do not own the URL.
 
-  if (database.userID !== user.id) {
+  if (!urlsForUser(req.session.user_id)) {
     res.status(403).send("You do not own this URL");
   }
   const templateVars = { user, id: req.params.id,  database};

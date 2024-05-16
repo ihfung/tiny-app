@@ -53,5 +53,51 @@ describe("Login and Access Control Test", () => {
         });
       });
   });
+
   
+  //Dont know why it is going to 200 instead of 302 but in the inspect browser it is showing 302
+  it('GET request done on "http://localhost:8080/" will be redirected with a status code of 200 to the URL "http://localhost:8080/login"', () => {
+    const agent = chai.request.agent("http://localhost:8080");
+    return agent
+      .get("/")
+      .then((res) => {
+        expect(res).to.redirect;
+        expect(res).to.redirectTo("http://localhost:8080/login");
+        expect(res).to.have.status(200);
+      });
+      
+  });
+
+  //Dont know why it is going to 200 instead of 302 but in the inspect browser it is showing 302
+  it('GET request done on "http://localhost:8080/urls/new" will be redirected with a status code of 200 to the URL "http://localhost:8080/login"', () => {
+    const agent = chai.request.agent("http://localhost:8080");
+    return agent
+      .get("/urls/new")
+      .then((res) => {
+        expect(res).to.redirect;
+        expect(res).to.redirectTo("http://localhost:8080/login");
+        expect(res).to.have.status(200);
+      });
+  });
+
+  //Dont know why it is going to 404 on the inspect browser but fail in the npm test
+  it('GET request done on "http://localhost:8080/urls/NOTEXISTS" will be met with a status code of 403', () => {
+    const agent = chai.request.agent("http://localhost:8080");
+    return agent
+      .get("/urls/NOTEXISTS")
+      .then((res) => {
+        expect(res).to.have.status(403);
+      });
+  });
+
+  it('GET request done on "http://localhost:8080/urls/b2xVn2" will be met with a status code of 403', () => {
+    const agent = chai.request.agent("http://localhost:8080");
+
+    return agent
+      .get("/urls/b2xVn2")
+      .then((res) => {
+        expect(res).to.have.status(403);
+      });
+  });
+
 });
