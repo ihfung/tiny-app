@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-
+const getUserByEmail = require("./helpers.js");
 const bcrypt = require("bcryptjs");
 
 let cookieSession = require('cookie-session');
@@ -61,16 +61,6 @@ let urlsForUser = function(id) {
   return result;
 };
 
-const getUserByEmail = function(email, database) {
-  // lookup magic...
-  let result = false;
-  for (let userId in database) {
-    if (database[userId].email === email) {
-      result = true;
-    }
-  }
-  return result;
-};
 
 app.use(express.urlencoded({ extended: true }));
 
