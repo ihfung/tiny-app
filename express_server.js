@@ -66,7 +66,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  if ((urlsForUser(req.cookies.user_id))) {
+  if (Object.keys(urlsForUser(req.cookies.user_id)).length === 0) {
     const database = urlDatabase[req.params.id];
     const user = users[req.cookies.user_id];
     const templateVars = { user, database};
