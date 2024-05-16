@@ -160,8 +160,8 @@ app.post("/login", (req, res) => {
   
   let isUserFound = false;
   for (let user in users) {
-    let hashed = users[user].hashedPassword;
-    console.log("Comparing", password, "with hash", users[user].hashedPassword);
+    let hashed = users[user]["password"];
+    
     let compare = bcrypt.compareSync(password, hashed);
     if (users[user].email === email && compare === true) {
       isUserFound = true;
@@ -195,7 +195,7 @@ app.post("/register", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
-  let user = { id: userId, email, hashedPassword };
+  const user = { id: userId, email, password: hashedPassword };
   if (email.length === 0 || password.length === 0) {
     res.status(400).send("Email and password cannot be empty");
   }
