@@ -93,7 +93,6 @@ app.get("/urls", (req, res) => {
     res.redirect("/login");
   }
   
-  
   const user = users[id];
   let result = {};
   //filter the database and put the result
@@ -123,9 +122,9 @@ app.get("/urls/:id", (req, res) => {
   if (!users[req.session.user_id]) {
     res.status(403).send("Please login or register to shorten an URL");
   }
-  //Ensure the GET /urls/:id page returns a relevant error message to the user if they do not own the URL.
-
-  if (!urlsForUser(req.session.user_id)) {
+  
+  //if user is logged it but does not own the URL with the given ID: returns HTML with a relevant error message
+  if (!urlsForUser(req.session.user_id)[req.params.id]) {
     res.status(403).send("You do not own this URL");
   }
   const templateVars = { user, id: req.params.id,  database};
@@ -150,26 +149,38 @@ app.post("/urls", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   // const longURL = ...
-  
-  const userId = req.params.id;
-  if (!urlDatabase[userId]) {
+  const loggedInUserID = req.session.user_id;
+  const longURL = urlDatabase[req.params.id];
+  //if URL for the given ID does not exist: returns HTML with a relevant error message
+  if (!longURL) {
     res.status(403).send("URL not found");
   }
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  const templateVars = {
+    id: req.params.id,
+    longURL: longURL.longURL,
+    user: users[loggedInUserID]
+  };
+  res.redirect(templateVars.longURL);
 });
 
 //params is a property of the request object
 app.post("/urls/:id/delete", (req, res) => {
-  if (urlsForUser(req.session.user_id)) {
-    const tempId = req.params.id;
-    delete urlDatabase[tempId]; //deletes the URL from the database
-    res.redirect("/urls"); //redirects to the URLs page
+  let tempId = req.params.id;
+  if (!users[req.session.user_id]) {
+    res.status(403).send("Please login or register to delete an URL");
   }
+
+  if (urlDatabase[tempId].userID !== req.session.user_id) {
+    res.status(403).send("You do not own this URL");
+  }
+  
+  delete urlDatabase[tempId];
+  res.redirect("/urls");
+
 });
 
 //Add a POST route that updates a URL resource; POST /urls/:id and have it update the value of your stored long URL based on the new value in req.body. Finally, redirect the client back to /urls.
-app.post("/urls/:id/edit", (req, res) => {
+app.post("/urls/:id", (req, res) => {
   if (urlsForUser(req.session.user_id)) {
     const tempId = req.params.id;
     const longURL = req.body.longURL;
