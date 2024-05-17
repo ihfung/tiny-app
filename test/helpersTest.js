@@ -45,6 +45,7 @@ describe("Login and Access Control Test", () => {
     return agent
       .post("/login")
       .send({ email: "user2@example.com", password: "dishwasher-funk" })
+      .redirects(0)
       .then((loginRes) => {
         // Step 2: Make a GET request to a protected resource
         return agent.get("/urls/b2xVn2").then((accessRes) => {
@@ -56,27 +57,31 @@ describe("Login and Access Control Test", () => {
 
   
   //Dont know why it is going to 200 instead of 302 but in the inspect browser it is showing 302
+  //fixed from cohort chat help
   it('GET request done on "http://localhost:8080/" will be redirected with a status code of 200 to the URL "http://localhost:8080/login"', () => {
     const agent = chai.request.agent("http://localhost:8080");
     return agent
       .get("/")
+      .redirects(0)
       .then((res) => {
         expect(res).to.redirect;
-        expect(res).to.redirectTo("http://localhost:8080/login");
-        expect(res).to.have.status(200);
+        expect(res).to.redirectTo("/login");
+        expect(res).to.have.status(302);
       });
       
   });
 
   //Dont know why it is going to 200 instead of 302 but in the inspect browser it is showing 302
-  it('GET request done on "http://localhost:8080/urls/new" will be redirected with a status code of 200 to the URL "http://localhost:8080/login"', () => {
+  //fixed from cohort chat help
+  it('GET request done on "http://localhost:8080/urls/new" will be redirected with a status code of 302 to the URL "http://localhost:8080/login"', () => {
     const agent = chai.request.agent("http://localhost:8080");
     return agent
       .get("/urls/new")
+      .redirects(0)
       .then((res) => {
         expect(res).to.redirect;
-        expect(res).to.redirectTo("http://localhost:8080/login");
-        expect(res).to.have.status(200);
+        expect(res).to.redirectTo("/login");
+        expect(res).to.have.status(302);
       });
   });
 
@@ -85,6 +90,7 @@ describe("Login and Access Control Test", () => {
     const agent = chai.request.agent("http://localhost:8080");
     return agent
       .get("/urls/NOTEXISTS")
+      .redirects(0)
       .then((res) => {
         expect(res).to.have.status(403);
       });
@@ -95,6 +101,7 @@ describe("Login and Access Control Test", () => {
 
     return agent
       .get("/urls/b2xVn2")
+      .redirects(0)
       .then((res) => {
         expect(res).to.have.status(403);
       });

@@ -119,8 +119,12 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const database = urlDatabase[req.params.id];
   const user = users[req.session.user_id];
-  if (!users[req.session.user_id]) {
-    res.status(403).send("Please login or register to shorten an URL");
+
+  if (!users[req.session.user_id] || !req.session.user_id) {
+    res.status(403).send("Please login or register to see an URL");
+  }
+  if (!urlDatabase[req.params.id]) {
+    res.status(403).send("URL not found");
   }
   
   //if user is logged it but does not own the URL with the given ID: returns HTML with a relevant error message
@@ -153,7 +157,7 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   //if URL for the given ID does not exist: returns HTML with a relevant error message
   if (!longURL) {
-    res.status(403).send("URL not found");
+    res.status(404).send("URL not found");
   }
   const templateVars = {
     id: req.params.id,
@@ -189,7 +193,7 @@ app.post("/urls/:id", (req, res) => {
       urlDatabase[tempId].longURL = longURL;
       res.redirect("/urls");
     }
-    res.status(403).send("URL not found");
+    res.status(404).send("URL not found");
   }
   res.status(403).send("You do not own this URL");
   
